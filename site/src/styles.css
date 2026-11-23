@@ -2349,6 +2349,34 @@ em {
   text-align: center;
 }
 
+.contact-form__note--success,
+.contact-form__note--error {
+  font-size: 13px;
+  line-height: 1.5;
+}
+
+.contact-form__note--success {
+  color: #8fe3b0;
+}
+
+.contact-form__note--error {
+  color: #ffaaaa;
+}
+
+.contact-form__note a {
+  color: inherit;
+  text-decoration: underline;
+}
+
+.contact-form__fields button:disabled {
+  opacity: 0.65;
+  cursor: progress;
+}
+
+.contact-form__honeypot {
+  display: none;
+}
+
 @keyframes contactModalEnter {
   from {
     opacity: 0;
