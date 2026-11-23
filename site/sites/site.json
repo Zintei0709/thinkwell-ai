@@ -1,0 +1,17 @@
+{
+  "name": "ThinkWell AI",
+  "siteId": "36b4fa4e-6dce-4626-86a9-ab3787a20fbb",
+  "production": {
+    "url": "https://thinkwell-ai-tp2948.freebuff.site",
+    "published": true,
+    "deployedAt": "2026-11-18T16:04:56.083Z"
+  },
+  "preview": {
+    "url": "https://thinkwell-ai-tp2948-preview.freebuff.site",
+    "published": false,
+    "deployedAt": "2026-11-18T16:04:22.231Z"
+  },
+  "manifest": "site/sites/manifest.json",
+  "buildCommand": "cd site && npm ci && npm run build",
+  "note": "Static Vite build; redeploy with sites_deploy using site/sites/manifest.json."
+}

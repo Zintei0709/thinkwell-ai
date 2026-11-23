@@ -1,0 +1,12 @@
+node_modules/
+site/node_modules/
+site/dist/
+build/
+dist/
+.env
+.env.*
+!.env.example
+*.log
+.DS_Store
+coverage/
+.cache/
