@@ -1,4 +1,4 @@
-# Ethereum ICO Crowdsale Contract  [![CI](https://github.com/thinkwell/thinkwell-ai/actions/workflows/ci.yml/badge.svg)](https://github.com/thinkwell/thinkwell-ai/actions/workflows/ci.yml)
+# Ethereum ICO Crowdsale Contract  [![CI](https://github.com/Zintei0709/thinkwell-ai/actions/workflows/ci.yml/badge.svg)](https://github.com/Zintei0709/thinkwell-ai/actions/workflows/ci.yml)
 
 This is a basic example of a crowdsale with a brand new ERC20 token. First deploy the Sale contract, and then the ERC20 token contract. The ERC20 contract will require the Sale Contract etheruem address.
 
