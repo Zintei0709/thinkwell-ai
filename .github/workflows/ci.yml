@@ -60,6 +60,25 @@ jobs:
         if: failure()
         run: cat "$RUNNER_TEMP/ganache.log" || true
 
+  contact-api:
+    name: Contact API (unit tests)
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    defaults:
+      run:
+        working-directory: contact-api
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v7
+        with:
+          node-version: "24"
+
+      - name: Run unit tests
+        run: npm test
+
   site:
     name: Site (type-check & build)
     runs-on: ubuntu-latest
@@ -101,7 +120,7 @@ jobs:
 
   deploy:
     name: Deploy to GitHub Pages
-    needs: [contracts, site]
+    needs: [contracts, contact-api, site]
     if: github.event_name != 'pull_request' && github.ref_name == github.event.repository.default_branch
     runs-on: ubuntu-latest
     timeout-minutes: 10

@@ -9,8 +9,9 @@ GitHub Actions ([.github/workflows/ci.yml](.github/workflows/ci.yml)) runs on ev
 | Job | Runs on | What it does |
 |---|---|---|
 | **Contracts** | every push / PR | Starts a local Ganache chain and runs the Truffle tests (Node 24) |
+| **Contact API** | every push / PR | Runs the unit tests for the Telegram relay in `contact-api/` |
 | **Site** | every push / PR | Type-checks and builds the Vite site in `site/` (Node from `site/.nvmrc`) |
-| **Deploy** | pushes to `main` only | Publishes `site/dist` to GitHub Pages, only if both jobs above passed |
+| **Deploy** | pushes to `main` only | Publishes `site/dist` to GitHub Pages, only if all jobs above passed |
 
 **One-time setup:** in the GitHub repo, open **Settings → Pages → Build and deployment → Source** and select **GitHub Actions**. The site is published at **https://thinkwell-ai.online** (custom domain, DNS managed in Vercel). To redeploy without a new commit, use **Actions → CI/CD → Run workflow**.
 
@@ -22,7 +23,15 @@ npm run chain              # terminal 1: Ganache on 127.0.0.1:8545
 npm test                   # terminal 2: Truffle tests
 
 cd site && npm ci && npm run build
+cd contact-api && npm test
 ```
+
+### Contact form delivery
+
+The site's contact form sends each message two ways at once:
+
+- **Email** via [Web3Forms](https://web3forms.com) to `whaletera@gmail.com` (the access key in `ContactForm.tsx` is public by design).
+- **Telegram** via `contact-api/`, a Vercel serverless function at `https://api.thinkwell-ai.online/api/contact` that forwards the message to the team's bot. It reads `TELEGRAM_BOT_TOKEN`, `TELEGRAM_CHAT_ID` and `ALLOWED_ORIGINS` from the Vercel project's environment variables. **Never commit the bot token**: this repo is public.
 
 ## Contract Details
 - Creates/Mints 5 million Tokens and holds them inside contract.

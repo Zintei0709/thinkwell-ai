@@ -1,0 +1,10 @@
+{
+  "name": "thinkwell-contact-api",
+  "private": true,
+  "version": "1.0.0",
+  "description": "Serverless endpoint that forwards website contact messages to Telegram",
+  "type": "module",
+  "scripts": {
+    "test": "node --test"
+  }
+}

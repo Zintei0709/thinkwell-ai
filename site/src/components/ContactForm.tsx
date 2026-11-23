@@ -6,7 +6,41 @@ import { useEffect, useRef, useState, type FormEvent } from 'react'
 const WEB3FORMS_ACCESS_KEY = 'd6b992a5-95c8-4d3d-a682-4debf83d4596'
 const CONTACT_EMAIL = 'whaletera@gmail.com'
 
+// Serverless endpoint (contact-api/ in this repo, hosted on Vercel) that
+// forwards each message to the team's Telegram bot. The bot token stays on
+// the server; it must never be added to this client-side code.
+const TELEGRAM_RELAY_URL = 'https://api.thinkwell-ai.online/api/contact'
+
 type Status = 'idle' | 'sending' | 'sent' | 'error'
+
+type ContactFields = { name: string; company: string; email: string; message: string }
+
+async function sendEmail(fields: ContactFields): Promise<void> {
+  const response = await fetch('https://api.web3forms.com/submit', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
+    body: JSON.stringify({
+      access_key: WEB3FORMS_ACCESS_KEY,
+      subject: `Intro call with ThinkWell AI — ${fields.name}`,
+      from_name: 'ThinkWell AI website',
+      replyto: fields.email,
+      ...fields,
+      company: fields.company || '—',
+    }),
+  })
+  const result = (await response.json().catch(() => null)) as { success?: boolean } | null
+  if (!response.ok || !result?.success) throw new Error('Web3Forms rejected the message')
+}
+
+async function sendTelegram(fields: ContactFields): Promise<void> {
+  const response = await fetch(TELEGRAM_RELAY_URL, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(fields),
+  })
+  const result = (await response.json().catch(() => null)) as { success?: boolean } | null
+  if (!response.ok || !result?.success) throw new Error('Telegram relay rejected the message')
+}
 
 export default function ContactForm() {
   const dialogRef = useRef<HTMLDialogElement>(null)
@@ -51,32 +85,26 @@ export default function ContactForm() {
       return
     }
 
-    const name = String(formData.get('name') ?? '').trim()
-    const company = String(formData.get('company') ?? '').trim()
-    const email = String(formData.get('email') ?? '').trim()
-    const message = String(formData.get('message') ?? '').trim()
+    const fields: ContactFields = {
+      name: String(formData.get('name') ?? '').trim(),
+      company: String(formData.get('company') ?? '').trim(),
+      email: String(formData.get('email') ?? '').trim(),
+      message: String(formData.get('message') ?? '').trim(),
+    }
 
     setStatus('sending')
-    try {
-      const response = await fetch('https://api.web3forms.com/submit', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
-        body: JSON.stringify({
-          access_key: WEB3FORMS_ACCESS_KEY,
-          subject: `Intro call with ThinkWell AI — ${name}`,
-          from_name: 'ThinkWell AI website',
-          replyto: email,
-          name,
-          company: company || '—',
-          email,
-          message,
-        }),
-      })
-      const result = (await response.json().catch(() => null)) as { success?: boolean } | null
-      if (!response.ok || !result?.success) throw new Error('Web3Forms rejected the message')
+    // Email and Telegram are sent in parallel; the message counts as delivered
+    // if at least one of them gets through.
+    const results = await Promise.allSettled([sendEmail(fields), sendTelegram(fields)])
+    results.forEach((result, i) => {
+      if (result.status === 'rejected') {
+        console.warn(`${i === 0 ? 'Email' : 'Telegram'} delivery failed:`, result.reason)
+      }
+    })
+    if (results.some((result) => result.status === 'fulfilled')) {
       form.reset()
       setStatus('sent')
-    } catch {
+    } else {
       setStatus('error')
     }
   }
@@ -115,12 +143,23 @@ export default function ContactForm() {
           <div className="contact-form__row">
             <div className="contact-form__field">
               <label htmlFor="contact-form-name">Name</label>
-              <input id="contact-form-name" name="name" autoComplete="name" required />
+              <input
+                id="contact-form-name"
+                name="name"
+                autoComplete="name"
+                maxLength={200}
+                required
+              />
             </div>
 
             <div className="contact-form__field">
               <label htmlFor="contact-form-company">Company</label>
-              <input id="contact-form-company" name="company" autoComplete="organization" />
+              <input
+                id="contact-form-company"
+                name="company"
+                autoComplete="organization"
+                maxLength={200}
+              />
             </div>
           </div>
 
@@ -131,13 +170,20 @@ export default function ContactForm() {
               name="email"
               type="email"
               autoComplete="email"
+              maxLength={320}
               required
             />
           </div>
 
           <div className="contact-form__field">
             <label htmlFor="contact-form-message">How can we help?</label>
-            <textarea id="contact-form-message" name="message" rows={4} required />
+            <textarea
+              id="contact-form-message"
+              name="message"
+              rows={4}
+              maxLength={3000}
+              required
+            />
           </div>
 
           <input
