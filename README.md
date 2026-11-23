@@ -12,7 +12,7 @@ GitHub Actions ([.github/workflows/ci.yml](.github/workflows/ci.yml)) runs on ev
 | **Site** | every push / PR | Type-checks and builds the Vite site in `site/` (Node from `site/.nvmrc`) |
 | **Deploy** | pushes to `main` only | Publishes `site/dist` to GitHub Pages, only if both jobs above passed |
 
-**One-time setup:** in the GitHub repo, open **Settings → Pages → Build and deployment → Source** and select **GitHub Actions**. The site is then published at `https://<owner>.github.io/<repo>/`. To redeploy without a new commit, use **Actions → CI/CD → Run workflow**.
+**One-time setup:** in the GitHub repo, open **Settings → Pages → Build and deployment → Source** and select **GitHub Actions**. The site is published at **https://thinkwell-ai.online** (custom domain, DNS managed in Vercel). To redeploy without a new commit, use **Actions → CI/CD → Run workflow**.
 
 Run the same checks locally:
 

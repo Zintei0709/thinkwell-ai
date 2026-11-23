@@ -73,7 +73,7 @@ export default function Team() {
           <figure className="team__photo">
             <img
               src={asset('images/teammate.jpg')}
-              alt="A team collaborating around a table during a discovery workshop"
+              alt="The ThinkWell AI team standing together in front of the ThinkWell AI logo"
               loading="lazy"
               decoding="async"
             />
