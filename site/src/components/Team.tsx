@@ -31,11 +31,11 @@ const team = [
     focus: 'Training · Adoption',
   },
   {
-    name: 'Dakeshi Yamada',
+    name: 'Kuroki Yosuke',
     role: 'Partner, software',
-    bio: 'Dakeshi is a software engineer and researcher. He has built and deployed large-scale ML systems in production, and is an expert in model evaluation and monitoring.',
+    bio: 'Kuroki is a software engineer and researcher. He has built and deployed large-scale ML systems in production, and is an expert in model evaluation and monitoring.',
     focus: 'Software · Evaluation',
-    photo: asset('images/team/dakeshi-yamada.jpg'),
+    photo: asset('images/team/kuroki-yosuke.jpg'),
   },
   {
     name: 'Sam Williams',
