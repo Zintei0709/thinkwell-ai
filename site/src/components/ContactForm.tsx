@@ -1,9 +1,16 @@
 import { useEffect, useRef, useState, type FormEvent } from 'react'
 
-// Messages are delivered by Web3Forms (https://web3forms.com) to the inbox the
-// access key was created for. The key is public by design: it can only send
-// messages to that inbox, so it is safe to ship in client-side code.
-const WEB3FORMS_ACCESS_KEY = 'd6b992a5-95c8-4d3d-a682-4debf83d4596'
+// Messages are emailed by Web3Forms (https://web3forms.com). Each access key
+// delivers to the one inbox it was created for, and Web3Forms' free plan has no
+// CC, so every inbox that should get contact messages has its own key here.
+// Keys are public by design (they can only send to their own inbox), so they
+// are safe in client-side code. To add an inbox, create a key for it at
+// web3forms.com and append it to this list.
+const WEB3FORMS_ACCESS_KEYS = [
+  'd6b992a5-95c8-4d3d-a682-4debf83d4596', // primary inbox (CONTACT_EMAIL)
+  'fa8857d7-edd1-4df2-94ac-7662883c9cf4', // team inbox 2
+  '895ab027-2f03-4238-ae18-f82a30ad69c7', // team inbox 3
+]
 const CONTACT_EMAIL = 'whaletera@gmail.com'
 
 // Serverless endpoint (contact-api/ in this repo, hosted on Vercel) that
@@ -15,12 +22,12 @@ type Status = 'idle' | 'sending' | 'sent' | 'error'
 
 type ContactFields = { name: string; company: string; email: string; message: string }
 
-async function sendEmail(fields: ContactFields): Promise<void> {
+async function sendEmail(fields: ContactFields, accessKey: string): Promise<void> {
   const response = await fetch('https://api.web3forms.com/submit', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
     body: JSON.stringify({
-      access_key: WEB3FORMS_ACCESS_KEY,
+      access_key: accessKey,
       subject: `Intro call with ThinkWell AI — ${fields.name}`,
       from_name: 'ThinkWell AI website',
       replyto: fields.email,
@@ -93,12 +100,19 @@ export default function ContactForm() {
     }
 
     setStatus('sending')
-    // Email and Telegram are sent in parallel; the message counts as delivered
-    // if at least one of them gets through.
-    const results = await Promise.allSettled([sendEmail(fields), sendTelegram(fields)])
+    // Every inbox and Telegram are sent to in parallel; the message counts as
+    // delivered if at least one of them gets through.
+    const channels = [
+      ...WEB3FORMS_ACCESS_KEYS.map((key, i) => ({
+        label: `Email #${i + 1}`,
+        send: sendEmail(fields, key),
+      })),
+      { label: 'Telegram', send: sendTelegram(fields) },
+    ]
+    const results = await Promise.allSettled(channels.map((channel) => channel.send))
     results.forEach((result, i) => {
       if (result.status === 'rejected') {
-        console.warn(`${i === 0 ? 'Email' : 'Telegram'} delivery failed:`, result.reason)
+        console.warn(`${channels[i].label} delivery failed:`, result.reason)
       }
     })
     if (results.some((result) => result.status === 'fulfilled')) {

@@ -30,7 +30,7 @@ cd contact-api && npm test
 
 The site's contact form sends each message two ways at once:
 
-- **Email** via [Web3Forms](https://web3forms.com) to `whaletera@gmail.com` (the access key in `ContactForm.tsx` is public by design).
+- **Email** via [Web3Forms](https://web3forms.com) to every inbox that has an access key in `site/src/components/ContactForm.tsx`: currently `whaletera@gmail.com` and two team inboxes. Web3Forms' free plan sends each key to one inbox only, so to add an inbox, create a key for it at web3forms.com and add it to `WEB3FORMS_ACCESS_KEYS`. The keys are public by design.
 - **Telegram** via `contact-api/`, a Vercel serverless function at `https://api.thinkwell-ai.online/api/contact` that forwards the message to the team's bot. It reads `TELEGRAM_BOT_TOKEN`, `TELEGRAM_CHAT_ID` and `ALLOWED_ORIGINS` from the Vercel project's environment variables. **Never commit the bot token**: this repo is public.
 
 ## Contract Details
